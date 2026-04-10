@@ -41,18 +41,17 @@ Convert all alerts in `data/`:
 
 ### Output structure
 
-Each alert produces a directory named by its alert ID:
+All output files go into a single flat directory, prefixed by alert ID:
 
 ```
 output/
-  170239611403501631/
-    alert.json              # Alert data as JSON
-    cutoutDifference.fits   # Difference image cutout
-    cutoutScience.fits      # Science image cutout
-    cutoutTemplate.fits     # Template image cutout
+  170239611403501631.json                    # Alert data as JSON
+  170239611403501631.cutoutDifference.fits   # Difference image cutout
+  170239611403501631.cutoutScience.fits      # Science image cutout
+  170239611403501631.cutoutTemplate.fits     # Template image cutout
 ```
 
-In `alert.json`, the cutout fields are replaced with the filenames of the extracted FITS files (or `null` if the cutout was not present in the alert).
+In the JSON file, cutout fields are replaced with the filenames of the extracted FITS files (or `null` if the cutout was not present in the alert).
 
 ## Schema resolution
 

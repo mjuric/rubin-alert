@@ -56,14 +56,14 @@ def read_alert(filepath, schema=None, registry_url=DEFAULT_REGISTRY):
     return record, schema_id
 
 
-def process_alert(record, output_dir):
+def process_alert(record, output_dir, alert_id):
     """Extract FITS cutouts to files and replace with filenames in the record."""
     os.makedirs(output_dir, exist_ok=True)
 
     for field in CUTOUT_FIELDS:
         value = record.get(field)
         if value is not None:
-            fits_filename = f"{field}.fits"
+            fits_filename = f"{alert_id}.{field}.fits"
             with open(os.path.join(output_dir, fits_filename), "wb") as f:
                 f.write(value)
             record[field] = fits_filename
@@ -112,18 +112,19 @@ def main(argv=None):
         with open(args.schema) as f:
             schema = json.load(f)
 
+    os.makedirs(args.outdir, exist_ok=True)
+
     for filepath in args.files:
         basename = os.path.basename(filepath)
         # Strip .avro.gz or .avro extension to get the alert ID
         alert_id = basename.replace(".avro.gz", "").replace(".avro", "")
-        out_dir = os.path.join(args.outdir, alert_id)
 
         record, schema_id = read_alert(
             filepath, schema=schema, registry_url=args.registry_url
         )
-        record = process_alert(record, out_dir)
+        record = process_alert(record, args.outdir, alert_id)
 
-        json_path = os.path.join(out_dir, "alert.json")
+        json_path = os.path.join(args.outdir, f"{alert_id}.json")
         indent = 2 if args.pretty else None
         with open(json_path, "w") as f:
             json.dump(record, f, cls=AlertEncoder, indent=indent)

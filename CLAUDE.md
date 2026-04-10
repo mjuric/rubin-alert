@@ -14,7 +14,7 @@ The tool is intentionally kept as one ~135-line script with no internal modules.
 
 - `fetch_schema(schema_id, registry_url)` -- fetches Avro schema from Confluent schema registry by ID, caches in `_schema_cache` dict
 - `read_alert(filepath, schema, registry_url)` -- decompresses `.avro.gz`, strips 5-byte Confluent Wire Format header (magic byte + 4-byte big-endian schema ID), deserializes with `fastavro.schemaless_reader()`
-- `process_alert(record, output_dir)` -- extracts `cutoutDifference`, `cutoutScience`, `cutoutTemplate` bytes fields as `.fits` files, replaces field values with filenames
+- `process_alert(record, output_dir, alert_id)` -- extracts `cutoutDifference`, `cutoutScience`, `cutoutTemplate` bytes fields as `{alert_id}.{field}.fits` files, replaces field values with filenames
 - `AlertEncoder` -- JSON encoder subclass that base64-encodes any `bytes` values not already handled (safety net)
 - `main()` -- CLI entry point using argparse
 

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rubin_alert_utils"
+version = "0.1.0"
+description = "Utilities for working with Rubin Observatory alert packets"
+requires-python = ">=3.10"
+dependencies = ["fastavro"]
+
+[project.scripts]
+rubin-alert2json = "rubin_alert_utils.alert2json:main"

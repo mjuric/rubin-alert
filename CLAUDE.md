@@ -2,13 +2,13 @@
 
 ## What this project does
 
-A single-file Python CLI tool (`alert2json.py`) that converts Rubin Observatory alert packets from Avro (Confluent Wire Format) to JSON, extracting embedded FITS image cutouts as separate files.
+Python package (`rubin_alert_utils`) with a CLI tool (`rubin-alert2json`) that converts Rubin Observatory alert packets from Avro (Confluent Wire Format) to JSON, extracting embedded FITS image cutouts as separate files.
 
 ## Architecture
 
-### Single file: `alert2json.py`
+### Package: `rubin_alert_utils`
 
-The tool is intentionally kept as one ~135-line script with no internal modules.
+Single module package. All logic lives in `src/rubin_alert_utils/alert2json.py`.
 
 **Key functions:**
 
@@ -16,7 +16,7 @@ The tool is intentionally kept as one ~135-line script with no internal modules.
 - `read_alert(filepath, schema, registry_url)` -- decompresses `.avro.gz`, strips 5-byte Confluent Wire Format header (magic byte + 4-byte big-endian schema ID), deserializes with `fastavro.schemaless_reader()`
 - `process_alert(record, output_dir, alert_id)` -- extracts `cutoutDifference`, `cutoutScience`, `cutoutTemplate` bytes fields as `{alert_id}.{field}.fits` files, replaces field values with filenames
 - `AlertEncoder` -- JSON encoder subclass that base64-encodes any `bytes` values not already handled (safety net)
-- `main()` -- CLI entry point using argparse
+- `main()` -- CLI entry point using argparse, exposed as `rubin-alert2json` console script
 
 **Data flow:** `.avro.gz` file -> gunzip -> strip 5-byte header -> fetch schema by ID -> `fastavro.schemaless_reader()` -> extract FITS cutouts to files -> write JSON
 
@@ -31,7 +31,7 @@ The tool is intentionally kept as one ~135-line script with no internal modules.
 ### Environment setup
 
 ```bash
-mamba create -p .venv python=3.13 fastavro -y
+pip install -e .
 ```
 
 Only external dependency is `fastavro`. Everything else is stdlib.
@@ -39,21 +39,23 @@ Only external dependency is `fastavro`. Everything else is stdlib.
 ### Running
 
 ```bash
-.venv/bin/python alert2json.py data/*.avro.gz -o output --pretty
+rubin-alert2json data/*.avro.gz -o output --pretty
 ```
 
 ### Testing changes
 
-1. Run on a single file: `.venv/bin/python alert2json.py data/170239611403501631.avro.gz -o output --pretty`
-2. Verify JSON is valid: `.venv/bin/python -m json.tool output/170239611403501631/alert.json > /dev/null`
+1. Run on a single file: `rubin-alert2json data/170239611403501631.avro.gz -o output --pretty`
+2. Verify JSON is valid: `python -m json.tool output/170239611403501631.json > /dev/null`
 3. Verify FITS files exist and have valid headers (start with `SIMPLE  =`)
-4. Run on all files: `.venv/bin/python alert2json.py data/*.avro.gz -o output --pretty`
+4. Run on all files: `rubin-alert2json data/*.avro.gz -o output --pretty`
 
 ### Project layout
 
 ```
-alert2json.py   # The CLI tool (only source file)
-data/           # Sample .avro.gz alert files
-output/         # Generated output (not checked in)
-.venv/          # Conda environment (not checked in)
+pyproject.toml
+src/rubin_alert_utils/
+    __init__.py
+    alert2json.py       # All logic and CLI entry point
+data/                   # Sample .avro.gz alert files
+output/                 # Generated output (not checked in)
 ```

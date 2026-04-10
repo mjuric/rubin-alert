@@ -4,30 +4,34 @@ Convert [Rubin Observatory](https://rubinobservatory.org/) alert packets to JSON
 
 Rubin alerts are serialized as [Apache Avro](https://avro.apache.org/) using the [Confluent Wire Format](https://docs.confluent.io/platform/current/schema-registry/fundamentals/serdes-develop/index.html#wire-format) and contain embedded FITS image cutouts (30x30 pixel postage stamps). This tool deserializes them into human-readable JSON and writes the cutout images as standalone FITS files.
 
-## Setup
-
-Create a conda environment with the required dependencies:
+## Installation
 
 ```bash
-mamba create -p .venv python=3.13 fastavro -y
+pip install .
+```
+
+Or for development:
+
+```bash
+pip install -e .
 ```
 
 ## Usage
 
 ```
-.venv/bin/python alert2json.py [options] FILE [FILE ...]
+rubin-alert2json [options] FILE [FILE ...]
 ```
 
 Convert one alert:
 
 ```bash
-.venv/bin/python alert2json.py data/170239611403501631.avro.gz -o output --pretty
+rubin-alert2json data/170239611403501631.avro.gz -o output --pretty
 ```
 
 Convert all alerts in `data/`:
 
 ```bash
-.venv/bin/python alert2json.py data/*.avro.gz -o output --pretty
+rubin-alert2json data/*.avro.gz -o output --pretty
 ```
 
 ### Options
